@@ -9,6 +9,8 @@
 
 A health-outcome classifier trained on real CDC NHANES survey data — three survey-year cohorts, reconciled schema drift, and survey weighting handled properly instead of ignored.
 
+Taking three imperfectly-matching survey files, reconciling them into one honest table without silently corrupting what the data represents, and train models that predict diabetes diagnosis from demographics and body measurements.
+
 ## Why this is harder than a clean CSV
 
 NHANES isn't a census — it's a stratified, multistage survey that deliberately oversamples specific groups, so each respondent row represents a different number of real people. That's what the survey weight column encodes, and dropping it silently biases any model trained on the data toward whichever groups NHANES happened to oversample.
