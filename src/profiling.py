@@ -35,6 +35,30 @@ def profile_all():
             print(f"rows: {p['n_rows']}, cols: {p['n_cols']}, unique SEQN: {p['n_unique_SEQN']}")
     return results
 
+# catching schema drift - 
+def diff_columns_across_cycles(file_stub: str, cycle_to_suffix: dict):
+
+    col_sets = {}
+    for cycle, suffix in cycle_to_suffix.items():
+        path = RAW_DIR / cycle / f"{file_stub}_{suffix}.xpt"
+        df = pd.read_sas(path, format="xport")
+        col_sets[cycle] = set(df.columns)
+
+    all_cols = set.union(*col_sets.values())
+    common_cols = set.intersection(*col_sets.values())
+    drifted = all_cols - common_cols
+
+    print(f"\n{file_stub}: {len(common_cols)} columns common to all 3 cycles")
+    print(f"{file_stub}: {len(drifted)} columns NOT present in all cycles (schema drift):")
+    for col in sorted(drifted):
+        present_in = [c for c, cols in col_sets.items() if col in cols]
+        print(f"  {col}: present in {present_in}")
+
+
+SUFFIX_MAP = {"2013-2014": "H", "2015-2016": "I", "2017-2018": "J"}
 
 if __name__ == "__main__":
     profile_all()
+    for stub in ["DEMO", "BMX", "DIQ"]:
+        diff_columns_across_cycles(stub, SUFFIX_MAP)
+
